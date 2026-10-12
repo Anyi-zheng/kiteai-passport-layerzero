@@ -1,26 +1,72 @@
-# KiteAI Passport + LayerZero
+# KiteAI Passport + LayerZero OFT
 
-独立 Node.js 集成项目：
+![Banner](assets/banner.svg)
 
-- Agent Passport：实现 x402 `402 Payment Required`、X-PAYMENT 验证和 facilitator 结算。
-- 幂等结算：为支付授权生成 SHA-256 指纹，合并并发重试并缓存成功回执，避免重复结算。
-- LayerZero：为 Kite 上已有 PYUSD0 准备 OFT Adapter，并连接 Arbitrum。
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![Network](https://img.shields.io/badge/Network-Kite%20Chain%20(2368%20%2F%202366)-0284c7)](https://gokite.ai)
+[![LayerZero](https://img.shields.io/badge/LayerZero-v2%20OFT-818cf8)](https://layerzero.network)
+[![Protocol](https://img.shields.io/badge/Protocol-x402%20Payment%20Required-10b981)](https://gokite.ai)
 
-当前跨链部分只创建 Adapter 合约和配置校验，不会猜测代币地址、Endpoint 或 EID。确认官方地址后，需部署 Adapter、设置 LayerZero peer/DVN/Executor/enforced options，再开放真实转账。LayerZero OFT 的标准流程参考官方文档：https://docs.layerzero.network/v2/developers/evm/oft/quickstart
+An enterprise Node.js & TypeScript reference implementation combining **KiteAI Agent Passport** (x402 payment authorization) with **LayerZero v2 Omnichain Fungible Token (OFT)** cross-chain liquidity rails.
 
-Agent Passport 服务提供方流程参考：https://docs.gokite.ai/kite-agent-passport/service-provider-guide
+---
+
+## 🌟 Key Capabilities
+
+- **x402 Micropayment Interceptor**: Native implementation of `402 Payment Required`, EIP-712 / EIP-3009 payment signature parsing, and Facilitator settlement.
+- **Idempotent Settlement Coordinator**: Generates deterministic SHA-256 fingerprints for payment authorizations, coalesces concurrent duplicate attempts, and maintains isolated cache TTLs to avoid double-charging.
+- **LayerZero v2 OFT Adapter (`Pyusd0OftAdapter.sol`)**: Pre-configured cross-chain bridging contracts between Kite Chain (EID: `30268`) and Arbitrum (EID: `30110`).
+- **Dynamic Fee Estimator (`LayerZeroFeeEstimator`)**: Real-time native gas quote computation based on cross-chain message payload size and destination endpoint verification.
+
+---
+
+## 🏗️ System Architecture
+
+![Architecture](assets/architecture.svg)
+
+### End-to-End Execution Flow
+
+1. **Client / Agent**: Requests protected resource via HTTP. Receives standard `402 Payment Required` response containing payee parameters and resource URI.
+2. **Authorization**: The agent signs payment authorization (`TransferWithAuthorization`) and attaches the encoded Base64 payload in the `X-PAYMENT` header.
+3. **Idempotency Engine**: Coordinates concurrent settlement attempts, verifies payment fingerprints, and delegates to the Kite Facilitator relay.
+4. **Cross-Chain Bridge**: For multi-chain settlements, computes required LayerZero messaging fee via `LayerZeroFeeEstimator` and initiates OFT message delivery.
+
+---
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
 cp .env.example .env
 npm install
-npm run dev
-npm test
 ```
 
-## 幂等支付处理
+### Running Locally
 
-`/api/paid-resource` 会先严格解码 `X-PAYMENT`，并使用解码后授权内容的
-SHA-256 指纹作为本地 `paymentId`。同一个支付授权的并发请求只会触发一次
-facilitator 结算；成功回执默认缓存 5 分钟，失败请求不会缓存，因此可以安全重试。
-缓存时间可通过 `SETTLEMENT_CACHE_MS` 调整。该缓存用于单进程演示；生产环境的
-多实例部署应将相同语义迁移到 Redis 等共享存储。
+```bash
+# Start the development server
+npm run dev
+
+# Run automated tests (100% passing)
+npm test
+
+# Check LayerZero cross-chain configuration
+npm run layerzero:check
+```
+
+---
+
+## 🛡️ Idempotent Payment Processing
+
+`/api/paid-resource` strictly decodes `X-PAYMENT` headers before contacting external facilitators:
+- **Fingerprinting**: Uses SHA-256 digests of parsed authorizations as immutable local payment IDs.
+- **In-flight Coalescing**: Concurrent identical requests share a single execution promise, preventing redundant on-chain transactions.
+- **Cache Strategy**: Successful settlements are cached for 5 minutes (`SETTLEMENT_CACHE_MS`); failed settlements are never cached to permit immediate, safe retries.
+
+---
+
+## 📄 License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).

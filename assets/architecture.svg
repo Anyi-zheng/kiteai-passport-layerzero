@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1100" height="400" fill="#090d16" rx="16"/>
+
+  <!-- Module 1: Client Request & 402 Paywall -->
+  <g transform="translate(40, 40)">
+    <rect width="280" height="320" rx="12" fill="url(#cardBg)" stroke="#334155" stroke-width="1.5"/>
+    <rect width="280" height="42" rx="12" fill="#1e293b"/>
+    <text x="140" y="27" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#38bdf8" text-anchor="middle">1. Client / Autonomous Agent</text>
+
+    <rect x="20" y="60" width="240" height="60" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="120" y="85" font-family="monospace" font-size="11" fill="#cbd5e1" text-anchor="middle">HTTP GET /api/paid-resource</text>
+    <text x="120" y="105" font-family="monospace" font-size="10" fill="#64748b" text-anchor="middle">Returns 402 Payment Required</text>
+
+    <rect x="20" y="140" width="240" height="60" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/>
+    <text x="120" y="165" font-family="monospace" font-size="11" font-weight="600" fill="#38bdf8" text-anchor="middle">Signs EIP-712 / EIP-3009</text>
+    <text x="120" y="185" font-family="monospace" font-size="10" fill="#94a3b8" text-anchor="middle">TransferWithAuthorization</text>
+
+    <rect x="20" y="220" width="240" height="60" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="120" y="245" font-family="monospace" font-size="11" fill="#cbd5e1" text-anchor="middle">X-PAYMENT Header Base64</text>
+    <text x="120" y="265" font-family="monospace" font-size="10" fill="#64748b" text-anchor="middle">Attached on subsequent request</text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <g transform="translate(330, 190)">
+    <line x1="0" y1="0" x2="60" y2="0" stroke="url(#arrowGrad)" stroke-width="2.5" stroke-dasharray="4,4"/>
+    <polygon points="65,0 55,-5 55,5" fill="#818cf8"/>
+    <text x="30" y="-10" font-family="monospace" font-size="10" fill="#818cf8" text-anchor="middle">X-PAYMENT</text>
+  </g>
+
+  <!-- Module 2: Settlement Coordinator -->
+  <g transform="translate(410, 40)">
+    <rect width="280" height="320" rx="12" fill="url(#cardBg)" stroke="#334155" stroke-width="1.5"/>
+    <rect width="280" height="42" rx="12" fill="#1e293b"/>
+    <text x="140" y="27" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#818cf8" text-anchor="middle">2. Idempotent Coordinator</text>
+
+    <rect x="20" y="60" width="240" height="60" rx="8" fill="#0f172a" stroke="#818cf8" stroke-width="1.2"/>
+    <text x="120" y="85" font-family="monospace" font-size="11" font-weight="600" fill="#818cf8" text-anchor="middle">SHA-256 Fingerprint ID</text>
+    <text x="120" y="105" font-family="monospace" font-size="10" fill="#94a3b8" text-anchor="middle">Deterministic payment hashing</text>
+
+    <rect x="20" y="140" width="240" height="60" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="120" y="165" font-family="monospace" font-size="11" fill="#cbd5e1" text-anchor="middle">Concurrent Coalescing</text>
+    <text x="120" y="185" font-family="monospace" font-size="10" fill="#64748b" text-anchor="middle">Merges inflight duplicate calls</text>
+
+    <rect x="20" y="220" width="240" height="60" rx="8" fill="#0f172a" stroke="#34d399" stroke-width="1.2"/>
+    <text x="120" y="245" font-family="monospace" font-size="11" font-weight="600" fill="#34d399" text-anchor="middle">TTL Success Cache</text>
+    <text x="120" y="265" font-family="monospace" font-size="10" fill="#6ee7b7" text-anchor="middle">Failure isolation &amp; clean retries</text>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <g transform="translate(700, 190)">
+    <line x1="0" y1="0" x2="60" y2="0" stroke="url(#arrowGrad)" stroke-width="2.5" stroke-dasharray="4,4"/>
+    <polygon points="65,0 55,-5 55,5" fill="#ec4899"/>
+    <text x="30" y="-10" font-family="monospace" font-size="10" fill="#ec4899" text-anchor="middle">Cross-Chain</text>
+  </g>
+
+  <!-- Module 3: LayerZero Bridge Routing -->
+  <g transform="translate(780, 40)">
+    <rect width="280" height="320" rx="12" fill="url(#cardBg)" stroke="#334155" stroke-width="1.5"/>
+    <rect width="280" height="42" rx="12" fill="#1e293b"/>
+    <text x="140" y="27" font-family="system-ui, sans-serif" font-size="14" font-weight="700" fill="#ec4899" text-anchor="middle">3. LayerZero v2 OFT Adapter</text>
+
+    <rect x="20" y="60" width="240" height="60" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="120" y="85" font-family="monospace" font-size="11" fill="#cbd5e1" text-anchor="middle">Kite Chain (EID: 30268)</text>
+    <text x="120" y="105" font-family="monospace" font-size="10" fill="#64748b" text-anchor="middle">Native PYUSD0 balance source</text>
+
+    <rect x="20" y="140" width="240" height="60" rx="8" fill="#0f172a" stroke="#ec4899" stroke-width="1.2"/>
+    <text x="120" y="165" font-family="monospace" font-size="11" font-weight="600" fill="#ec4899" text-anchor="middle">LayerZeroFeeEstimator</text>
+    <text x="120" y="185" font-family="monospace" font-size="10" fill="#94a3b8" text-anchor="middle">Dynamic gas quote by byte count</text>
+
+    <rect x="20" y="220" width="240" height="60" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+    <text x="120" y="245" font-family="monospace" font-size="11" fill="#cbd5e1" text-anchor="middle">Arbitrum One (EID: 30110)</text>
+    <text x="120" y="265" font-family="monospace" font-size="10" fill="#64748b" text-anchor="middle">Target destination OFT mint/burn</text>
+  </g>
+</svg>
